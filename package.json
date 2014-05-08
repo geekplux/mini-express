@@ -1,0 +1,27 @@
+{
+  "name": "fork2-myexpress",
+  "version": "0.0.0",
+  "description": "Mini Express",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/geekplux/fork2-myexpress.git"
+  },
+  "keywords": [
+    "express"
+  ],
+  "author": "GeekPlux",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/geekplux/fork2-myexpress/issues"
+  },
+  "homepage": "https://github.com/geekplux/fork2-myexpress",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.18.2",
+    "supertest": "^0.12.0"
+  }
+}
