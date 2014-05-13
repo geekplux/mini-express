@@ -15,41 +15,18 @@ myexpress = () ->
     return
 
   app.handle = (req, res, out) ->
-    next = (error) ->
-    
+    next = (err) ->
       layer = stack[index++]
-      
-      unless layer
-        
-        return out(error)  if out
-        
-        if error
-          
-          res.writeHead 500,
-            "Content-Type": "text/html"
 
-          res.end()
-        else
-          
-          res.writeHead 404,
-            "Content-Type": "text/html"
-
-          res.end()
+      if layer == undefined
+        res.writeHead 404,
+          "Content-Type": "text/html"
+        res.end()
         return
+      else
+        layer req, res, next
 
-      try
-        arity = layer.length
-        if error
-          if arity is 4
-            layer error, req, res, next
-          else
-            next error
-        else if arity < 4
-          layer req, res, next
-        else
-          next()
-      catch event
-        next event
+      next()
       return
       
     stack = @stack
