@@ -1,6 +1,6 @@
 express = require('../')
 request = require('supertest')
-expect = require("chai").expect
+expect = require('chai').expect
 http = require('http')
 
 describe 'empty app', ->
@@ -97,8 +97,74 @@ describe 'calling middleware stack', () ->
     return
 
   it 'Should 404 if no middleware is added', (done) ->
-    request(app).get("/").expect(404).end done
+    request(app).get('/').expect(404).end done
 
+    return
+
+  return
+
+describe 'Implement Error Handling', ->
+  app = undefined
+  beforeEach ->
+    app = new express()
+    return
+
+  it 'should return 500 for unhandled error', (done) ->
+    m1 = (req, res, next) ->
+      next new Error('boom1!')
+      return
+
+    app.use m1
+    request(app).get('/').expect(500).end done
+
+    return
+
+  it 'should return 500 for uncaught error', (done) ->
+    m1 = (req, res, next) ->
+      throw new Error('boom2!')
+      return
+
+    app.use m1
+    request(app).get('/').expect(500).end done
+
+    return
+
+  it 'should ignore error handlers when `next` is called without an error', (done) ->
+    m1 = (req, res, next) ->
+      next()
+      return
+
+    e1 = (err, req, res, next) ->
+
+    # timeout
+    m2 = (req, res, next) ->
+      res.end 'm2'
+      return
+
+    app.use m1
+    app.use e1 # should skip this
+    app.use m2
+    request(app).get('/').expect('m2').end done
+
+    return
+
+  it 'should skip normal middlewares if `next` is called with an error', (done) ->
+    m1 = (req, res, next) ->
+      next new Error('boom!')
+      return
+
+    m2 = (req, res, next) ->
+
+    # timeout
+    e1 = (err, req, res, next) ->
+      res.end 'e1'
+      return
+
+    app.use m1
+    app.use m2 # should skip this. will timeout if called.
+    app.use e1
+    request(app).get('/').expect('e1').end done
+    
     return
 
 
