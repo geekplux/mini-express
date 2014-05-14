@@ -3,7 +3,7 @@ Layer = require("./lib/layer")
 
 myexpress = () ->
   app = (req, res, next) ->
-    app.handle(req, res, next)
+    app.handle req, res, next
     return
 
   app.listen = (port, done) ->
@@ -25,12 +25,12 @@ myexpress = () ->
   app.handle = (req, res, out) ->
 
     next = (err) ->
-      
+
       layer = stack[index++]
 
       unless layer
               
-        return out(err)  if out
+        return out err if out
         
         if err
           res.writeHead 500,
@@ -44,7 +44,7 @@ myexpress = () ->
         return
 
       try
-        return next error  unless layer.match(req.url)
+        return next err  unless layer.match req.url
 
         if err
           layer.handle err, req, res, next
@@ -61,7 +61,8 @@ myexpress = () ->
     stack = @stack
     index = 0
     next()
-    return app
+
+    return
 
 
   return app
