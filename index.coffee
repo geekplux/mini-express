@@ -1,4 +1,5 @@
 http = require('http')
+Layer = require("./lib/layer")
 
 myexpress = () ->
   app = (req, res, next) ->
@@ -10,12 +11,21 @@ myexpress = () ->
     server.listen(port, done())
 
   app.stack = []
-  app.use = (middleware) ->
-    @stack.push middleware
+  app.use = (path, middleware) ->
+
+    unless middleware?
+      middleware = path
+      path = "/"
+
+    layer = new Layer(path, middleware)
+    @stack.push layer
+
     return
 
   app.handle = (req, res, out) ->
+
     next = (err) ->
+      
       layer = stack[index++]
 
       unless layer
@@ -34,12 +44,15 @@ myexpress = () ->
         return
 
       try
+        return next error  unless layer.match(req.url)
+
         if err
-          layer err, req, res, next
+          layer.handle err, req, res, next
           next err
         else
-          layer req, res, next
+          layer.handle req, res, next
           next()
+
       catch e
         next e
       

@@ -164,8 +164,143 @@ describe 'Implement Error Handling', ->
     app.use m2 # should skip this. will timeout if called.
     app.use e1
     request(app).get('/').expect('e1').end done
+
+    return
+
+
+  return
+
+describe "Layer class and the match method", ->
+  layer = undefined
+  fn = undefined
+  beforeEach ->
+    Layer = require("../lib/layer")
+    fn = ->
+    layer = new Layer("/foo", fn)
+
+    return
+
+  it "sets layer.handle to be the middleware", ->
+    expect(layer.handle).to.eql fn
+
+    return
+
+  it "returns undefined if path doesn't match", ->
+    expect(layer.match("/bar")).to.be.undefined
+
+    return
+
+  it "returns matched path if layer matches the request path exactly", ->
+    match = layer.match("/foo")
+    expect(match).to.not.be.undefined
+    expect(match).to.have.property "path", "/foo"
+
+    return
+
+  it "returns matched prefix if the layer matches the prefix of the request path", ->
+    match = layer.match("/foo/bar")
+    expect(match).to.not.be.undefined
+    expect(match).to.have.property "path", "/foo"
     
     return
 
+  return
+
+describe "app.use should add a Layer to stack", () ->
+
+  app = undefined
+  Layer = undefined
+
+  beforeEach () ->
+    app = express()
+    Layer = require("../lib/layer")
+    app.use () ->
+    app.use "/foo", () ->
+    
+    return
+
+  it "first layer's path should be /", () ->
+    layer = app.stack[0]
+    expect(layer.match("/foo")).to.not.be.undefined
+    
+    return
+
+  it "second layer's path should be /foo", () ->
+    layer = app.stack[1]
+    expect(layer.match("/")).to.be.undefined
+    expect(layer.match("/foo")).to.not.be.undefined
+  
+    return
+
+  return
+
+describe "The middlewares called should match request path:", ->
+  app = undefined
+  before ->
+    app = express()
+    app.use "/foo", (req, res, next) ->
+      res.end "foo"
+
+      return
+
+    app.use "/", (req, res) ->
+      res.end "root"
+
+      return
+
+    return
+
+  it "returns root for GET /", (done) ->
+    request(app).get("/").expect("root").end done
+
+    return
+
+  it "returns foo for GET /foo", (done) ->
+    request(app).get("/foo").expect("foo").end done
+
+    return
+
+  it "returns foo for GET /foo/bar", (done) ->
+    request(app).get("/foo/bar").expect("foo").end done
+
+    return
+
+  return
+
+describe "The error handlers called should match request path:", ->
+  app = undefined
+  before ->
+    app = express()
+    app.use "/foo", (req, res, next) ->
+      throw "boom!"
+      
+      return
+
+    app.use "/foo/a", (err, req, res, next) ->
+      res.end "error handled /foo/a"
+
+      return
+
+    app.use "/foo/b", (err, req, res, next) ->
+      res.end "error handled /foo/b"
+
+      return
+
+    return
+
+  it "handles error with /foo/a", (done) ->
+    request(app).get("/foo/a").expect("error handled /foo/a").end done
+
+    return
+
+  it "handles error with /foo/b", (done) ->
+    request(app).get("/foo/b").expect("error handled /foo/b").end done
+
+    return
+
+  it "returns 500 for /foo", (done) ->
+    request(app).get("/foo").expect(500).end done
+
+    return
 
   return
