@@ -1,4 +1,4 @@
-http = require('http')
+http = require("http")
 Layer = require("./lib/layer")
 
 myexpress = () ->
@@ -45,6 +45,9 @@ myexpress = () ->
 
       try
         return next err  unless layer.match req.url
+
+        req.params = {}
+        req.params = (layer.match req.url).params
 
         if err
           layer.handle err, req, res, next

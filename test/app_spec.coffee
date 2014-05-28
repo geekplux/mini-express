@@ -304,3 +304,82 @@ describe "The error handlers called should match request path:", ->
     return
 
   return
+
+describe "Path parameters extraction", ->
+  Layer = undefined
+  layer = undefined
+  before ->
+    Layer = require("../lib/layer")
+    layer = new Layer("/foo/:a/:b")
+    return
+
+  it "returns undefined for unmatched path", ->
+    expect(layer.match("/bar")).to.be.undefined
+    return
+
+  it "returns undefined if there isn't enough parameters", ->
+    expect(layer.match("/foo/apple")).to.be.undefined
+    return
+
+  it "returns match data for exact match", ->
+    match = layer.match("/foo/apple/xiaomi")
+    expect(match).to.not.be.undefined
+    expect(match).to.have.property "path", "/foo/apple/xiaomi"
+    expect(match.params).to.deep.equal
+      a: "apple"
+      b: "xiaomi"
+
+    return
+
+  it "returns match data for prefix match", ->
+    match = layer.match("/foo/apple/xiaomi/htc")
+    expect(match).to.not.be.undefined
+    expect(match).to.have.property "path", "/foo/apple/xiaomi"
+    expect(match.params).to.deep.equal
+      a: "apple"
+      b: "xiaomi"
+
+    return
+
+  it "should decode uri encoding", ->
+    match = layer.match("/foo/apple/xiao%20mi")
+    expect(match.params).to.deep.equal
+      a: "apple"
+      b: "xiao mi"
+
+    return
+
+  it "should strip trialing slash", ->
+    layer = new Layer("/")
+    expect(layer.match("/foo")).to.not.be.undefined
+    expect(layer.match("/")).to.not.be.undefined
+    layer = new Layer("/foo/")
+    expect(layer.match("/foo")).to.not.be.undefined
+    expect(layer.match("/foo/")).to.not.be.undefined
+    return
+
+  return
+
+describe "Implement req.params", ->
+  app = undefined
+  before ->
+    app = express()
+    app.use "/foo/:a", (req, res, next) ->
+      res.end req.params.a
+      return
+
+    app.use "/foo", (req, res, next) ->
+      res.end "" + req.params.a
+      return
+
+    return
+
+  it "should make path parameters accessible in req.params", (done) ->
+    request(app).get("/foo/google").expect("google").end done
+    return
+
+  it "should make {} the default for req.params", (done) ->
+    request(app).get("/foo").expect("undefined").end done
+    return
+
+  return

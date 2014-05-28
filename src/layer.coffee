@@ -1,10 +1,25 @@
+p2re = require("path-to-regexp")
+
 Layer = (req, res) ->
+  req = if req[req.length - 1] is "/" then req[0...req.length - 1] else req
 
   @path = req
+
   @handle = res
+
   @match = (path) ->
-    if path.indexOf(@path) >= 0
-      return path: @path
+    names = []
+    params = {}
+
+    re = p2re @path, names, end: false
+    paths = re.exec(decodeURIComponent(path))
+
+    if re.test path
+      for item, i in names
+        params[item.name] = paths[i + 1]
+
+      path: paths[0]
+      params: params
 
   return
 
