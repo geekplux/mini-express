@@ -1,5 +1,5 @@
 http = require("http")
-Layer = require("./lib/layer")
+Layer = require("./src/layer")
 
 myexpress = () ->
   app = (req, res, next) ->
@@ -45,15 +45,20 @@ myexpress = () ->
 
       try
         return next err  unless layer.match req.url
+        func = layer.handle
 
         req.params = {}
         req.params = (layer.match req.url).params
 
+        if func.handle?
+          tempPath = req.url.split "/"
+          req.url = "/" + tempPath[tempPath.length - 1]
+
         if err
-          layer.handle err, req, res, next
+          func err, req, res, next
           next err
         else
-          layer.handle req, res, next
+          func req, res, next
           next()
 
       catch e

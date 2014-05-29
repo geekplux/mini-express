@@ -383,3 +383,55 @@ describe "Implement req.params", ->
     return
 
   return
+
+describe "app should have the handle method", ->
+  it "should have the handle method", ->
+    app = express()
+    expect(app.handle).to.be.a "function"
+    return
+
+  return
+
+describe "Prefix path trimming", ->
+  app = undefined
+  subapp = undefined
+  barapp = undefined
+  beforeEach ->
+    app = express()
+    subapp = express()
+    subapp.use "/bar", (req, res) ->
+      res.end "embedded app: " + req.url
+      return
+
+    app.use "/foo", subapp
+    app.use "/foo", (req, res) ->
+      res.end "handler: " + req.url
+      return
+
+    return
+
+  it "trims request path prefix when calling embedded app", (done) ->
+    request(app).get("/foo/bar").expect("embedded app: /bar").end done
+    return
+
+  it "restore trimmed request path to original when going to the next middleware", (done) ->
+    request(app).get("/foo").expect("handler: /foo").end done
+    return
+
+  describe "ensures leading slash", ->
+    beforeEach ->
+      barapp = express()
+      barapp.use "/", (req, res) ->
+        res.end "/bar"
+        return
+
+      app.use "/bar", barapp
+      return
+
+    it "ensures that first char is / for trimmed path", (done) ->
+      request(app).get("/bar/").expect("/bar").end done
+      return
+
+    return
+
+  return
