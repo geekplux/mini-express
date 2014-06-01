@@ -1,7 +1,8 @@
-http = require('http')
-Layer = require('./src/layer')
-Route = require('./src/route')
-methods = require('methods')
+http = require 'http'
+Layer = require './src/layer'
+Route = require './src/route'
+methods = require 'methods'
+methods.push 'all'
 
 myexpress = () ->
   app = (req, res, next) ->
@@ -13,13 +14,13 @@ myexpress = () ->
     server.listen(port, done())
 
   app.stack = []
-  app.use = (path, middleware) ->
+  app.use = (path, middleware, prefix) ->
 
     unless middleware?
       middleware = path
       path = '/'
 
-    layer = new Layer(path, middleware)
+    layer = new Layer(path, middleware, prefix)
     @stack.push layer
 
     return
@@ -74,6 +75,15 @@ myexpress = () ->
 
     return
 
+  app.route = (path) ->
+    prefix = true
+
+    route = new Route()
+    app.use(path, route, prefix)
+
+    return route
+
+
   # app.get = (path, handler) ->
   #   prefix = true
 
@@ -82,15 +92,13 @@ myexpress = () ->
 
   #   return @stack.push layer
 
+
   methods.forEach (method) ->
     
     app[method] = (path, handler) ->
-      prefix = true
-
-      route = new Route(method, handler)
-      layer = new Layer(path, route, prefix)
-
-      return @stack.push layer
+      route = app.route path
+      route[method] handler
+      return @
 
     return
 

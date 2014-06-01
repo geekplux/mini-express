@@ -1,4 +1,4 @@
-p2re = require('path-to-regexp')
+p2re = require 'path-to-regexp'
 
 Layer = (req, res, prefix) ->
   req = if req[req.length - 1] is '/' then req[0...req.length - 1] else req
