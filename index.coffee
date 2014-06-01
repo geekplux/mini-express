@@ -1,5 +1,7 @@
-http = require("http")
-Layer = require("./src/layer")
+http = require('http')
+Layer = require('./src/layer')
+Route = require('./src/route')
+methods = require('methods')
 
 myexpress = () ->
   app = (req, res, next) ->
@@ -15,7 +17,7 @@ myexpress = () ->
 
     unless middleware?
       middleware = path
-      path = "/"
+      path = '/'
 
     layer = new Layer(path, middleware)
     @stack.push layer
@@ -34,11 +36,11 @@ myexpress = () ->
         
         if err
           res.writeHead 500,
-            "Content-Type": "text/html"
+            'Content-Type': 'text/html'
           res.end()
         else
           res.writeHead 404,
-            "Content-Type": "text/html"
+            'Content-Type': 'text/html'
           res.end()
 
         return
@@ -51,8 +53,8 @@ myexpress = () ->
         req.params = (layer.match req.url).params
 
         if func.handle?
-          tempPath = req.url.split "/"
-          req.url = "/" + tempPath[tempPath.length - 1]
+          tempPath = req.url.split '/'
+          req.url = '/' + tempPath[tempPath.length - 1]
 
         if err
           func err, req, res, next
@@ -72,7 +74,27 @@ myexpress = () ->
 
     return
 
+  # app.get = (path, handler) ->
+  #   prefix = true
+
+  #   route = new Route('get', handler)
+  #   layer = new Layer(path, route, prefix)
+
+  #   return @stack.push layer
+
+  methods.forEach (method) ->
+    
+    app[method] = (path, handler) ->
+      prefix = true
+
+      route = new Route(method, handler)
+      layer = new Layer(path, route, prefix)
+
+      return @stack.push layer
+
+    return
 
   return app
+
 
 module.exports = myexpress

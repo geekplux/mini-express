@@ -1,7 +1,7 @@
-p2re = require("path-to-regexp")
+p2re = require('path-to-regexp')
 
-Layer = (req, res) ->
-  req = if req[req.length - 1] is "/" then req[0...req.length - 1] else req
+Layer = (req, res, prefix) ->
+  req = if req[req.length - 1] is '/' then req[0...req.length - 1] else req
 
   @path = req
 
@@ -11,7 +11,7 @@ Layer = (req, res) ->
     names = []
     params = {}
 
-    re = p2re @path, names, end: false
+    re = p2re @path, names, end: prefix || false
     paths = re.exec(decodeURIComponent(path))
 
     if re.test path
