@@ -1,4 +1,4 @@
-methods = require 'methods'
+methods = require('methods').concat 'all'
 
 makeRoute = (verb, handler) ->
 
@@ -16,7 +16,7 @@ makeRoute = (verb, handler) ->
 
   route.handler = (req, res, out) ->
     next = (err) ->
-      out() if err is "route"
+      out() if err is 'route'
       out err if err
       layer = stack[index++]
 
@@ -24,7 +24,7 @@ makeRoute = (verb, handler) ->
         res.statusCode = 404
         res.end()
 
-      if layer.verb is req.method.toLowerCase() or layer.verb is "all"
+      if layer.verb is req.method.toLowerCase() or layer.verb is 'all'
         layer.handler req, res, next
       else
         next()

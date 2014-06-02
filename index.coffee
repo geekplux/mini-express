@@ -1,8 +1,7 @@
 http = require 'http'
 Layer = require './src/layer'
 Route = require './src/route'
-methods = require 'methods'
-methods.push 'all'
+methods = require('methods').concat 'all'
 
 myexpress = () ->
   app = (req, res, next) ->
@@ -83,15 +82,9 @@ myexpress = () ->
 
     return route
 
-
-  # app.get = (path, handler) ->
-  #   prefix = true
-
-  #   route = new Route('get', handler)
-  #   layer = new Layer(path, route, prefix)
-
-  #   return @stack.push layer
-
+  app._factories = {}
+  app.factory = (name, fn) ->
+    app._factories[name] = fn
 
   methods.forEach (method) ->
     
