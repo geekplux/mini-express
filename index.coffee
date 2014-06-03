@@ -1,6 +1,7 @@
 http = require 'http'
 Layer = require './src/layer'
 Route = require './src/route'
+Injector = require './src/injector'
 methods = require('methods').concat 'all'
 
 myexpress = () ->
@@ -85,6 +86,9 @@ myexpress = () ->
   app._factories = {}
   app.factory = (name, fn) ->
     app._factories[name] = fn
+
+  app.inject = (handler) ->
+    Injector handler, app
 
   methods.forEach (method) ->
     
