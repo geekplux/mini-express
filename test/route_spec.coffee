@@ -67,7 +67,6 @@ describe "Implement Route Handlers Invokation:", ->
 
       route.use "get", (req, res, next) ->
 
-      
       # would timeout
       request(app).get("/").expect(500).end done
       return
@@ -96,7 +95,7 @@ describe "Implement Route Handlers Invokation:", ->
 
     return
 
-  
+
   # it("matches DELETE to the all handler")
   # it("matches PATCH to the all handler")
   describe "match any verb:", ->
@@ -124,7 +123,7 @@ describe "Implement Route Handlers Invokation:", ->
         return
 
       route.use "get", ->
-        throw new Error("boom") 
+        throw new Error("boom")
         return
 
       app.use (req, res) ->

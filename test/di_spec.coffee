@@ -3,8 +3,11 @@ expect = require("chai").expect
 http = require("http")
 express = require("../")
 inject = undefined
+
+
 try
   inject = require("../lib/injector")
+
 describe "app.factory", ->
   app = undefined
   fn = undefined

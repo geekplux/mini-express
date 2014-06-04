@@ -14,7 +14,7 @@ describe 'empty app', ->
       .end done
       return
     return
-    
+
   describe 'listen port', () ->
     port = 4000
 
@@ -23,7 +23,7 @@ describe 'empty app', ->
       expect(server).to.be.instanceOf(http.Server)
       return
     return
-    
+
   return
 
 describe 'app.user', () ->
@@ -201,7 +201,7 @@ describe "Layer class and the match method", ->
     match = layer.match("/foo/bar")
     expect(match).to.not.be.undefined
     expect(match).to.have.property "path", "/foo"
-    
+ 
     return
 
   return
@@ -216,22 +216,21 @@ describe "app.use should add a Layer to stack", () ->
     Layer = require("../lib/layer")
     app.use () ->
     app.use "/foo", () ->
-    
+
     return
 
   it "first layer's path should be /", () ->
     layer = app.stack[0]
     expect(layer.match("/foo")).to.not.be.undefined
-    
+
     return
 
   it "second layer's path should be /foo", () ->
     layer = app.stack[1]
     expect(layer.match("/")).to.be.undefined
     expect(layer.match("/foo")).to.not.be.undefined
-  
-    return
 
+    return
   return
 
 describe "The middlewares called should match request path:", ->
@@ -273,7 +272,7 @@ describe "The error handlers called should match request path:", ->
     app = express()
     app.use "/foo", (req, res, next) ->
       throw "boom!"
-      
+ 
       return
 
     app.use "/foo/a", (err, req, res, next) ->

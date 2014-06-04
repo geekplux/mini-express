@@ -32,9 +32,9 @@ myexpress = () ->
       layer = stack[index++]
 
       unless layer
-              
+
         return out err if out
-        
+
         if err
           res.writeHead 500,
             'Content-Type': 'text/html'
@@ -66,9 +66,9 @@ myexpress = () ->
 
       catch e
         next e
-      
+
       return
-      
+
     stack = @stack
     index = 0
     next()
@@ -91,7 +91,6 @@ myexpress = () ->
     Injector handler, app
 
   methods.forEach (method) ->
-    
     app[method] = (path, handler) ->
       route = app.route path
       route[method] handler

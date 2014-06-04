@@ -1,5 +1,8 @@
-getArgumentsName = (fn) ->
+getParameters = (fn) ->
   fnText = fn.toString()
+
+  if getParameters.cache[fnText]
+    getParameters.cache[fnText]
 
   FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m
   FN_ARG_SPLIT = /,/
@@ -14,65 +17,82 @@ getArgumentsName = (fn) ->
       return
     return
 
+  getParameters.cache[fn] = names
   names
 
+getParameters.cache = {}
 
 
 createInjector = (handler, app) ->
   injector = (req, res, next) ->
-    injector.dependencies_loader(req, res, next) (err, values) ->
-      if err and next instanceof Function then next err else handler.apply handler, values
-      return
+    injector.invoke req, res, next
     return
 
 
+  injector.invoke = (req, res, next) ->
+    loader = @dependencies_loader(req, res, next)
+    loader (err, values) ->
+      if err
+        next err
+      else
+        handler.apply null, values
+      return
+
 
   injector.extract_params = () ->
-    return getArgumentsName handler
-
-  injector.dependencies_loader = (req, res, next) ->
-
-    names = @extract_params()
-    appFac = []
-    values = []
-    _arguments = arguments
-    _factories = app._factories
-    error = undefined
-
-    params = getArgumentsName @dependencies_loader
-    for item, i in _arguments
-      _factories[params[i]] = item
+    getParameters handler
 
 
-    for item in names
-      appFac.push app._factories[item]
-
-    next = (err, value) ->
-      error = err
-      values.push value if value?
-      return if index == appFac.length
-
-      func = appFac[index++]
-
-      unless func
-        error = new Error "Factory not defined: " + names[index - 1] unless error
-      else if func instanceof Function
-        try
-          func req, res, next
-        catch e
-          next e
-      else
-        next err, func
-
-      return
-      
-
+  injector.dependencies_loader = (req, res, done) ->
+    params = @extract_params()
     index = 0
-    next()
+    (func) ->
+      next = ->
+        dependency = params[index]
+        index++
 
-    return (handler) ->
-      handler error, values
+        if dependency is "req"
+          values.push req
+          next()
+          return
 
+        if dependency is "res"
+          values.push res
+          next()
+          return
+
+        if dependency is "next"
+          values.push done
+          next()
+          return
+
+        if dependency
+          factory = app._factories[dependency]
+
+          unless factory
+            func new Error("Factory not defined: " + dependency)
+            return
+
+          try
+            factory req, res, (err, value) ->
+              if err
+                func err
+                return
+              values.push value
+              next()
+              return
+
+          catch e
+            func e
+
+        else
+          func null, values
+
+        return
+
+      values = []
+      next()
+      return
 
 
   return injector
