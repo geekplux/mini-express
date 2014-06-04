@@ -50,6 +50,7 @@ createInjector = (handler, app) ->
     next = (err, value) ->
       error = err
       values.push value if value?
+      return if index == appFac.length
 
       func = appFac[index++]
 
