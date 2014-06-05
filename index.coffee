@@ -1,17 +1,20 @@
 http = require 'http'
-Layer = require './src/layer'
-Route = require './src/route'
-Injector = require './src/injector'
+Layer = require './lib/layer'
+Route = require './lib/route'
+Injector = require './lib/injector'
 methods = require('methods').concat 'all'
+_request = require './lib/request'
+_response = require './lib/response'
 
 myexpress = () ->
   app = (req, res, next) ->
+    app.monkey_patch req, res
     app.handle req, res, next
     return
 
-  app.listen = (port, done) ->
+  app.listen = () ->
     server = http.createServer(@)
-    server.listen(port, done())
+    server.listen.apply server, arguments
 
   app.stack = []
   app.use = (path, middleware, prefix) ->
@@ -33,7 +36,9 @@ myexpress = () ->
 
       unless layer
 
-        return out err if out
+        if out
+          subApp = app
+          return out err
 
         if err
           res.writeHead 500,
@@ -48,12 +53,14 @@ myexpress = () ->
 
       try
         return next err  unless layer.match req.url
+        req.app = app
         func = layer.handle
 
         req.params = {}
         req.params = (layer.match req.url).params
 
         if func.handle?
+          req.app = subApp
           tempPath = req.url.split '/'
           req.url = '/' + tempPath[tempPath.length - 1]
 
@@ -71,6 +78,7 @@ myexpress = () ->
 
     stack = @stack
     index = 0
+    subApp = undefined
     next()
 
     return
@@ -89,6 +97,13 @@ myexpress = () ->
 
   app.inject = (handler) ->
     Injector handler, app
+
+  app.monkey_patch = (req, res) ->
+    req.__proto__ = _request
+    res.__proto__ = _response
+    req.res = res
+    res.req = req
+    return
 
   methods.forEach (method) ->
     app[method] = (path, handler) ->

@@ -3,31 +3,35 @@ request = require('supertest')
 expect = require('chai').expect
 http = require('http')
 
-describe 'empty app', ->
+describe "Implement Empty App", ->
   app = express()
-  describe 'create http server', ->
-    it 'responds 404', (done) ->
+  describe "as handler to http.createServer", ->
+    it "responds to /foo with 404", (done) ->
       server = http.createServer(app)
-      request(server)
-      .get('/foo')
-      .expect(404)
-      .end done
+      request(server).get("/foo").expect(404).end done
       return
     return
 
-  describe 'listen port', () ->
-    port = 4000
-
-    it 'should return a http.Server', (done) ->
+  describe "Defining the app.listen method", ->
+    server = undefined
+    port = 7001
+    before (done) ->
       server = app.listen(port, done)
-      expect(server).to.be.instanceOf(http.Server)
+      return
+
+    it "should return an http.Server", ->
+      expect(server).to.be.instanceOf http.Server
+      return
+
+    it "responds to /foo wit 404", (done) ->
+      request("http://localhost:" + port).get("/foo").expect(404).end done
       return
     return
-
   return
 
+
 describe 'app.user', () ->
-  app = null
+  app = undefined
   m1 = () ->
   m2 = () ->
 

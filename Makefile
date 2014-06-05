@@ -1,4 +1,5 @@
 lesson4_t:
+	mocha verify/app_spec.js -R spec -g 'Implement Empty App'
 	mocha verify/app_spec.js -R spec -g 'Implement app.use'
 	mocha verify/app_spec.js -R spec -g 'Implement calling the middlewares'
 	mocha verify/app_spec.js -R spec -g 'Implement Error Handling'
@@ -38,9 +39,10 @@ lesson9_t:
 	mocha verify/di_spec.js -R spec -g "Implement app.inject"
 
 lesson10_t:
-	mocha verify/monkey_spec.js -R spec -g "Setting req.app"
+	mocha verify/monkey_spec.js -R spec -g "Monkey patch req and res"
 	mocha verify/monkey_spec.js -R spec -g "Monkey patch before serving"
 	mocha verify/monkey_spec.js -R spec -g "Setting req.app"
+	mocha verify/monkey_spec.js -R spec -g 'req.res and res.req'
 	mocha verify/monkey_spec.js -R spec -g "HTTP redirect"
 
 lesson11_t:
