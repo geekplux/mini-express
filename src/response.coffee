@@ -42,4 +42,28 @@ proto.format = (file) ->
 
   return
 
+proto.send = (statusCode, body) ->
+  if body? then @statusCode = statusCode else body = statusCode
+
+  if typeof body is 'number'
+    @default_type 'text/plain'
+    @statusCode = body
+    body = http.STATUS_CODES[body]
+  else if typeof body is 'string'
+    @default_type 'text/html'
+  else if Buffer.isBuffer body
+    @default_type 'application/octet-stream'
+  else
+    @default_type 'application/json'
+    body = JSON.stringify body
+
+  if Buffer.isBuffer body then bodyLength = body.length else bodyLength = Buffer.byteLength body
+  @setHeader 'Content-Length', bodyLength
+
+
+  @end body
+
+  return
+
+
 module.exports = proto
