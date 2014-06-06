@@ -1,6 +1,7 @@
 http = require 'http'
 mime = require 'mime'
 accepts = require 'accepts'
+crc32 = require 'buffer-crc32'
 
 proto = {}
 proto.isExpress = true
@@ -60,6 +61,11 @@ proto.send = (statusCode, body) ->
   if Buffer.isBuffer body then bodyLength = body.length else bodyLength = Buffer.byteLength body
   @setHeader 'Content-Length', bodyLength
 
+  if !@getHeader('ETag') and @req.method == 'GET' and bodyLength
+    @setHeader('ETag', '"' + crc32.unsigned(body) + '"')
+
+  if @getHeader('ETag') is @req.headers["if-none-match"] or @getHeader('Last-Modified') <= @req.headers['if-modified-since']
+    @statusCode = 304
 
   @end body
 
