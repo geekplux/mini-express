@@ -41,12 +41,10 @@ myexpress = () ->
           return out err
 
         if err
-          res.writeHead 500,
-            'Content-Type': 'text/html'
+          res.statusCode = err.statusCode || 500
           res.end()
         else
-          res.writeHead 404,
-            'Content-Type': 'text/html'
+          res.statusCode = 404
           res.end()
 
         return
